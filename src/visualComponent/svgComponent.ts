@@ -62,6 +62,7 @@ export interface ISvgComponentRenderOptions extends IVisualComponentRenderOption
     xTicks: DataRepresentationAxisValueType[];
     yTicks: DataRepresentationAxisValueType[];
     secondaryYTicks: DataRepresentationAxisValueType[];
+    tertiaryYTicks?: DataRepresentationAxisValueType[];
     additionalMargin: IMargin;
 }
 
@@ -79,6 +80,7 @@ export class SvgComponent extends BaseContainerComponent<
     private xAxisReferenceLineComponent: IVisualComponent<IAxisReferenceLineBaseComponentRenderOptions>;
     private yAxisReferenceLineComponent: IVisualComponent<IAxisReferenceLineBaseComponentRenderOptions>;
     private secondaryYAxisReferenceLineComponent: IVisualComponent<IAxisReferenceLineBaseComponentRenderOptions>;
+    private tertiaryYAxisReferenceLineComponent: IVisualComponent<IAxisReferenceLineBaseComponentRenderOptions>;
 
     private chartComponent: ChartComponent;
     private chartClipRectElement: Selection<SVGRectElement, unknown, null, undefined>;
@@ -109,6 +111,7 @@ export class SvgComponent extends BaseContainerComponent<
         this.xAxisReferenceLineComponent = new XAxisReferenceLineComponent(this.constructorOptions);
         this.yAxisReferenceLineComponent = new YAxisReferenceLineComponent(this.constructorOptions);
         this.secondaryYAxisReferenceLineComponent = new YAxisReferenceLineComponent(this.constructorOptions);
+        this.tertiaryYAxisReferenceLineComponent = new YAxisReferenceLineComponent(this.constructorOptions);
 
         this.chartComponent = new ChartComponent(this.constructorOptions);
         this.labelsComponent = new LabelsComponent(this.constructorOptions);
@@ -117,6 +120,7 @@ export class SvgComponent extends BaseContainerComponent<
             this.xAxisReferenceLineComponent,
             this.yAxisReferenceLineComponent,
             this.secondaryYAxisReferenceLineComponent,
+            this.tertiaryYAxisReferenceLineComponent,
             this.chartComponent,
             this.labelsComponent,
         ];
@@ -153,7 +157,7 @@ export class SvgComponent extends BaseContainerComponent<
     public render(options: ISvgComponentRenderOptions): void {
         const {
             data: {
-                groups: [firstGroup, secondGroup],
+                groups: [firstGroup, secondGroup, thirdGroup],
                 settings,
                 viewport,
                 margin,
@@ -212,6 +216,14 @@ export class SvgComponent extends BaseContainerComponent<
             colorPalette: options.colorPalette
         });
 
+        this.tertiaryYAxisReferenceLineComponent.render({
+            scale: thirdGroup && thirdGroup.y && thirdGroup.y.scale,
+            settings: settings.tertiaryReferenceLineOfYAxis,
+            ticks: options.tertiaryYTicks,
+            viewport: reducedViewport,
+            colorPalette: options.colorPalette
+        });
+
         this.chartComponent.render(this.renderOptions);
         this.labelsComponent.render(this.renderOptions);
     }
@@ -228,6 +240,7 @@ export class SvgComponent extends BaseContainerComponent<
         this.xAxisReferenceLineComponent = null;
         this.yAxisReferenceLineComponent = null;
         this.secondaryYAxisReferenceLineComponent = null;
+        this.tertiaryYAxisReferenceLineComponent = null;
         this.chartComponent = null;
         this.labelsComponent = null;
     }

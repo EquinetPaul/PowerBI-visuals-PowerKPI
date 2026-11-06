@@ -1,3 +1,11 @@
+## 3.2.0.0
+### Features
+* Added a Tertiary Values field drawn against a third Y axis, placed on the right of the secondary one. It comes with its own Tertiary Y Axis and Tertiary Y Axis Reference Lines cards, offering the same settings as the secondary ones, and both cards only show up once the field is bound
+* Added a Display setting to the Y axis, secondary Y axis and tertiary Y axis cards: Standard draws every series from its own value as before, Stacked piles the series of the axis on top of each other and Stacked 100% turns each pile into the shares of its total, with the axis labels read as percentages. Stacking applies to the Line, Area, Scatter and Line and markers types; tooltips, data labels and the KPI keep showing the raw values
+* Added a Line and markers option to the Line Type setting, drawing the line with a marker on each data point
+### Fixes
+* Fixed the type errors the ComboComponent specs raised since the Scatter line type made the radius factor a required render option
+
 ## 3.1.5.0
 ### Features
 * Added a Zoom Slider card, off by default, showing a zoom slider on the X axis, the Y axis or both. The slider narrows the axis range the same way the built in visuals do; the chart is rebuilt when the drag ends and the zoom resets when the data is refreshed. The X axis slider is offered only on a date or numeric axis, a categorical one having no range to narrow

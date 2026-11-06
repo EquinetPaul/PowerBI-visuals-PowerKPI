@@ -63,3 +63,8 @@ export const secondaryValuesColumn: IVisualDataRole = {
     displayName: "Secondary Values",
     name: "SecondaryValues",
 };
+
+export const tertiaryValuesColumn: IVisualDataRole = {
+    displayName: "Tertiary Values",
+    name: "TertiaryValues",
+};

@@ -31,6 +31,31 @@ export interface IDataRepresentationPoint {
     y: number;
     kpiIndex: number;
     color: string;
+    // Set only when the axis of the series is stacked: the bottom and the top of the band
+    // the point occupies, in axis units. y keeps the raw value, which is what the
+    // tooltips, the data labels and the KPI keep reading.
+    stackedY0?: number;
+    stackedY1?: number;
+}
+
+/**
+ * The value a point is drawn at: the top of its band on a stacked axis, its own value
+ * otherwise.
+ */
+export function getPlottedY(point: IDataRepresentationPoint): number {
+    return point && point.stackedY1 !== undefined
+        ? point.stackedY1
+        : point && point.y;
+}
+
+/**
+ * The value the area under a stacked point starts from, or undefined when the point is
+ * not stacked and its area runs down to the bottom of the chart.
+ */
+export function getPlottedBaseline(point: IDataRepresentationPoint): number | undefined {
+    return point && point.stackedY0 !== undefined
+        ? point.stackedY0
+        : undefined;
 }
 
 export interface IDataRepresentationPointGradientColor {

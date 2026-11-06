@@ -83,16 +83,27 @@ export class ComboComponent extends BaseContainerComponent<
             this.currentLineType = lineType;
         }
 
+        // Line and markers is the line with a scatter on top of it: the line is created
+        // first so that the markers are painted over it
+        const amountOfComponents: number = this.currentLineType === LineType.lineMarkers
+            ? 2
+            : 1;
+
         this.initComponents(
             this.components,
-            1,
-            () => {
+            amountOfComponents,
+            (componentIndex: number) => {
                 switch (this.currentLineType) {
                     case LineType.area: {
                         return new AreaComponent(this.constructorOptions);
                     }
                     case LineType.scatter: {
                         return new ScatterComponent(this.constructorOptions);
+                    }
+                    case LineType.lineMarkers: {
+                        return componentIndex === 0
+                            ? new LineComponent(this.constructorOptions)
+                            : new ScatterComponent(this.constructorOptions);
                     }
                     case LineType.column:
                     default: {

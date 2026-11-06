@@ -188,3 +188,78 @@ describe("Scatter line type", () => {
         });
     });
 });
+
+describe("Line and markers line type", () => {
+    it("should render the line path and one marker per data point", () => {
+        const yValues: number[] = [10, 20, 30, 40];
+        const rootElement: Element = renderCombo(LineType.lineMarkers, yValues);
+
+        expect(getPaths(rootElement).length).toBe(1);
+        expect(getCircles(rootElement).length).toBe(yValues.length);
+    });
+
+    it("should paint the markers over the line", () => {
+        const rootElement: Element = renderCombo(LineType.lineMarkers);
+        const comboElement: Element = rootElement.querySelector(".powerKpi_comboComponent");
+        const children: Element[] = Array.from(comboElement.children);
+
+        expect(children.length).toBe(2);
+        expect(children[0].classList.contains("powerKpi_lineComponent")).toBe(true);
+        expect(children[1].classList.contains("powerKpi_scatterComponent")).toBe(true);
+    });
+
+    it("should put every marker on a vertex of the line", () => {
+        const yValues: number[] = [10, 20, 30, 40];
+        const rootElement: Element = renderCombo(LineType.lineMarkers, yValues);
+
+        // d3 rounds path coordinates to three decimals, so vertices are compared loosely
+        const vertices: number[][] = (getPaths(rootElement)[0].getAttribute("d").match(/-?[\d.]+,-?[\d.]+/g) || [])
+            .map((pair: string) => pair.split(",").map(parseFloat));
+
+        expect(vertices.length).toBe(yValues.length);
+
+        getCircles(rootElement).forEach((circle: SVGCircleElement, index: number) => {
+            expect(parseFloat(circle.getAttribute("cx"))).toBeCloseTo(vertices[index][0], 2);
+            expect(parseFloat(circle.getAttribute("cy"))).toBeCloseTo(vertices[index][1], 2);
+        });
+    });
+
+    it("should skip the markers of points without a value", () => {
+        const rootElement: Element = renderCombo(LineType.lineMarkers, [10, null, 30, NaN, 50]);
+
+        expect(getCircles(rootElement).length).toBe(3);
+    });
+
+    it("should drop the markers when switching back to the Line type", () => {
+        const viewport: powerbi.IViewport = { width: 400, height: 300 };
+        const rootElement: HTMLElement = testDom(viewport.height.toString(), viewport.width.toString());
+        const points: IDataRepresentationPoint[] = buildPoints([10, 20, 30]);
+        const series: IDataRepresentationSeries = buildSeries(points);
+        const comboComponent: ComboComponent = new ComboComponent({ element: d3Select(rootElement) });
+
+        const options: IComboComponentRenderOptions = {
+            areaOpacity: 0.5,
+            colorPalette: createColorPalette(),
+            gradientPoints: series.gradientPoints,
+            interpolation: LineInterpolation.linear,
+            lineStyle: LineStyle.solidLine,
+            lineType: LineType.lineMarkers,
+            opacity: 1,
+            radiusFactor: 1.4,
+            series,
+            thickness: 2,
+            viewport,
+            x: DataRepresentationScale
+                .create()
+                .domain([0, points.length - 1], DataRepresentationTypeEnum.NumberType),
+            y: series.y.scale,
+        };
+
+        comboComponent.render(options);
+        expect(getCircles(rootElement).length).toBe(3);
+
+        comboComponent.render({ ...options, lineType: LineType.line });
+        expect(getCircles(rootElement).length).toBe(0);
+        expect(getPaths(rootElement).length).toBe(1);
+    });
+});

@@ -111,7 +111,11 @@ export class YAxisComponent
             cultureSelector: locale,
             precision: settings.precision.value,
             format: axis.format || this.valueFormat,
-            value: settings.displayUnits.value || axis.max});
+            // A Stacked 100% axis reads as a share of the total, which display units
+            // would scale into nonsense, so they are only applied to amounts
+            value: axis.isPercentage
+                ? axis.max
+                : settings.displayUnits.value || axis.max});
 
         this.maxLabelHeight = labelMeasurementService.getLabelHeight(
             axis.max,

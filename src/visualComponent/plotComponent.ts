@@ -67,6 +67,7 @@ export class PlotComponent extends BaseContainerComponent<
     private xAxisComponent: IAxisComponent<IXAxisComponentRenderOptions>;
     private yAxisComponent: IAxisComponent<IYAxisComponentRenderOptions>;
     private secondaryYAxisComponent: IAxisComponent<IYAxisComponentRenderOptions>;
+    private tertiaryYAxisComponent: IAxisComponent<IYAxisComponentRenderOptions>;
     private svgComponent: IVisualComponent<ISvgComponentRenderOptions>;
     private xZoomSliderComponent: ZoomSliderComponent;
     private yZoomSliderComponent: ZoomSliderComponent;
@@ -90,11 +91,13 @@ export class PlotComponent extends BaseContainerComponent<
 
         // The plot lays its children out in DOM order, so the vertical zoom slider is
         // created first to sit left of the Y axis, and the horizontal one last so that
-        // it wraps onto its own full width row underneath the X axis.
+        // it wraps onto its own full width row underneath the X axis. The tertiary Y axis
+        // follows the secondary one, so it sits on the far right of the chart.
         this.yZoomSliderComponent = new ZoomSliderComponent(this.constructorOptions);
         this.yAxisComponent = new YAxisComponent(this.constructorOptions);
         this.svgComponent = new SvgComponent(this.constructorOptions);
         this.secondaryYAxisComponent = new YAxisComponent(this.constructorOptions);
+        this.tertiaryYAxisComponent = new YAxisComponent(this.constructorOptions);
         this.xAxisComponent = new XAxisComponent(this.constructorOptions);
         this.xZoomSliderComponent = new ZoomSliderComponent(this.constructorOptions);
 
@@ -103,6 +106,7 @@ export class PlotComponent extends BaseContainerComponent<
             this.yAxisComponent,
             this.svgComponent,
             this.secondaryYAxisComponent,
+            this.tertiaryYAxisComponent,
             this.xAxisComponent,
             this.xZoomSliderComponent,
         ];
@@ -114,7 +118,7 @@ export class PlotComponent extends BaseContainerComponent<
             data: {
                  x,
                 margin,
-                groups: [firstGroup, secondGroup],
+                groups: [firstGroup, secondGroup, thirdGroup],
                 viewport,
                 locale,
                 zoom,
@@ -122,13 +126,14 @@ export class PlotComponent extends BaseContainerComponent<
                     xAxis,
                     yAxis,
                     secondaryYAxis,
+                    tertiaryYAxis,
                     zoomSlider,
                 },
             },
             colorPalette
         } = options;
 
-        if (!firstGroup && !secondGroup) {
+        if (!firstGroup && !secondGroup && !thirdGroup) {
             this.hide();
 
             return;
@@ -170,11 +175,21 @@ export class PlotComponent extends BaseContainerComponent<
             locale: locale
         });
 
+        this.tertiaryYAxisComponent.preRender({
+            axis: thirdGroup && thirdGroup.y,
+            margin: null,
+            settings: tertiaryYAxis,
+            viewport: null,
+            colorPalette: colorPalette,
+            locale: locale
+        });
+
         const xAxisViewport: IVisualComponentViewport = this.xAxisComponent.getViewport();
 
         const maxYAxisHeight: number = Math.max(
             this.yAxisComponent.getViewport().height,
             this.secondaryYAxisComponent.getViewport().height,
+            this.tertiaryYAxisComponent.getViewport().height,
         );
 
         // Each slider is rendered once the space it reserves is known; its own band is
@@ -221,16 +236,33 @@ export class PlotComponent extends BaseContainerComponent<
             locale: locale
         });
 
+        this.tertiaryYAxisComponent.render({
+            axis: thirdGroup && thirdGroup.y,
+            margin,
+            settings: tertiaryYAxis,
+            viewport: {
+                height,
+                width: reducedViewport.width,
+            },
+            colorPalette: colorPalette,
+            locale: locale
+        });
+
         const yAxisViewport: IVisualComponentViewport = this.yAxisComponent.getViewport();
         const secondaryYAxisViewport: IVisualComponentViewport = this.secondaryYAxisComponent.getViewport();
+        const tertiaryYAxisViewport: IVisualComponentViewport = this.tertiaryYAxisComponent.getViewport();
+
+        // Both right hand axes sit side by side after the chart, so the overflow of the
+        // last X axis label is only reserved for when they are narrower than it together
+        const rightYAxesWidth: number = secondaryYAxisViewport.width + tertiaryYAxisViewport.width;
 
         const leftOffset: number = this.getOffset(xAxisViewport.width, yAxisViewport.width);
-        const rightOffset: number = this.getOffset(xAxisViewport.width2, secondaryYAxisViewport.width);
+        const rightOffset: number = this.getOffset(xAxisViewport.width2, rightYAxesWidth);
 
         const width: number = Math.max(0,
             reducedViewport.width
             - yAxisViewport.width
-            - secondaryYAxisViewport.width
+            - rightYAxesWidth
             - leftOffset
             - rightOffset
             - yZoomSliderWidth,
@@ -299,6 +331,7 @@ export class PlotComponent extends BaseContainerComponent<
             yTicks: this.yAxisComponent.getTicks(),
 
             secondaryYTicks: this.secondaryYAxisComponent.getTicks(),
+            tertiaryYTicks: this.tertiaryYAxisComponent.getTicks(),
             colorPalette,
         });
     }
@@ -309,6 +342,7 @@ export class PlotComponent extends BaseContainerComponent<
         this.xAxisComponent = null;
         this.yAxisComponent = null;
         this.secondaryYAxisComponent = null;
+        this.tertiaryYAxisComponent = null;
         this.svgComponent = null;
         this.xZoomSliderComponent = null;
         this.yZoomSliderComponent = null;

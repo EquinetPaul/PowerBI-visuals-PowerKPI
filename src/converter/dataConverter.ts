@@ -33,6 +33,7 @@ import {
     kpiIndicatorValueColumn,
     secondaryValuesColumn,
     secondKPIIndicatorValueColumn,
+    tertiaryValuesColumn,
     valuesColumn,
 
 } from "../capabilities/columns";
@@ -95,6 +96,8 @@ export interface AxisInfo {
 }
 
 export class DataConverter extends VarianceConverter implements IConverter {
+    // The labels of a Stacked 100% axis read as a share of the total
+    private static Stacked100Format: string = "0%";
 
     private axisInfo: AxisInfo;
 
@@ -260,6 +263,8 @@ export class DataConverter extends VarianceConverter implements IConverter {
                     groupIndex = 0;
                 } else if (groupedValue.source.roles[secondaryValuesColumn.name]) {
                     groupIndex = 1;
+                } else if (groupedValue.source.roles[tertiaryValuesColumn.name]) {
+                    groupIndex = 2;
                 }
 
                 if (groupIndex !== -1) {
@@ -398,6 +403,17 @@ export class DataConverter extends VarianceConverter implements IConverter {
             });
         });
 
+        dataRepresentation.groups.forEach((
+            seriesGroup: IDataRepresentationSeriesGroup,
+            seriesGroupIndex: number,
+        ) => {
+            const yAxisSettings: YAxisDescriptor = this.getYAxisSettings(settings, seriesGroupIndex);
+
+            if (seriesGroup && yAxisSettings && yAxisSettings.isStacked()) {
+                this.applyStacking(seriesGroup, yAxisSettings.isStacked100());
+            }
+        });
+
         dataRepresentation.x.values = axisCategory.values as DataRepresentationAxisValueType[];
 
         this.applyXAxisBoundaries(dataRepresentation, settings.xAxis);
@@ -418,7 +434,7 @@ export class DataConverter extends VarianceConverter implements IConverter {
         );
 
         const group: IDataRepresentationSeriesGroup = dataRepresentation.groups
-            && (dataRepresentation.groups[0] || dataRepresentation.groups[1]);
+            && (dataRepresentation.groups[0] || dataRepresentation.groups[1] || dataRepresentation.groups[2]);
 
         if (dataRepresentation.variances[0]) {
             dataRepresentation.variance.push(dataRepresentation.variances[0]
@@ -466,9 +482,7 @@ export class DataConverter extends VarianceConverter implements IConverter {
             if (seriesGroup) {
                 dataRepresentation.series = dataRepresentation.series.concat(seriesGroup.series);
 
-                const yAxisSettings: YAxisDescriptor = seriesGroupIndex === 0
-                    ? settings.yAxis
-                    : settings.secondaryYAxis;
+                const yAxisSettings: YAxisDescriptor = this.getYAxisSettings(settings, seriesGroupIndex);
 
                 const yMin: number = this.getNotNaNValue(
                     yAxisSettings.min.value,
@@ -502,6 +516,101 @@ export class DataConverter extends VarianceConverter implements IConverter {
             dataRepresentation.series,
             viewport.height,
         );
+    }
+
+    /**
+     * The Y axis card driving the given group: Values, Secondary Values and Tertiary
+     * Values each have their own.
+     */
+    private getYAxisSettings(settings: Settings, seriesGroupIndex: number): YAxisDescriptor {
+        return settings.getYAxes()[seriesGroupIndex];
+    }
+
+    /**
+     * Stacks the series of a group on top of each other, category by category, in the
+     * order they are bound. Positive values pile up from zero and negative ones pile
+     * down from it, the same way the built in stacked charts handle a mixed sign series.
+     *
+     * Each point keeps its raw value in y, so tooltips, data labels and the KPI are
+     * unaffected, and receives the bottom and top of its band in stackedY0/stackedY1,
+     * which is what the chart draws. A point without a value takes no room in the pile
+     * and is not drawn, like on the standard display.
+     *
+     * Stacked 100% divides each value by the total of the absolute values of its
+     * category, so the axis reads as a share of the total. The group domain is rebuilt
+     * from the bands and always includes zero, the baseline every pile starts from.
+     */
+    private applyStacking(seriesGroup: IDataRepresentationSeriesGroup, isStacked100: boolean): void {
+        const series: IDataRepresentationSeries[] = seriesGroup.series;
+        const amountOfPoints: number = series.reduce(
+            (amount: number, currentSeries: IDataRepresentationSeries) => Math.max(amount, currentSeries.points.length),
+            0,
+        );
+
+        seriesGroup.y.min = 0;
+        seriesGroup.y.max = 0;
+
+        for (let pointIndex: number = 0; pointIndex < amountOfPoints; pointIndex++) {
+            const total: number = isStacked100
+                ? series.reduce((sum: number, currentSeries: IDataRepresentationSeries) => {
+                    const point: IDataRepresentationPoint = currentSeries.points[pointIndex];
+
+                    return point && this.isValueFinite(point.y)
+                        ? sum + Math.abs(point.y)
+                        : sum;
+                }, 0)
+                : NaN;
+
+            // The piles are summed in the unit of the measures and only divided by the
+            // total at the end, so that the top of a full Stacked 100% pile lands on
+            // exactly 1 rather than on a sum of rounded shares
+            const toAxisUnits = (value: number): number => {
+                if (!isStacked100) {
+                    return value;
+                }
+
+                return total
+                    ? value / total
+                    : 0;
+            };
+
+            let positiveTop: number = 0;
+            let negativeTop: number = 0;
+
+            series.forEach((currentSeries: IDataRepresentationSeries) => {
+                const point: IDataRepresentationPoint = currentSeries.points[pointIndex];
+
+                if (!point) {
+                    return;
+                }
+
+                const value: number = this.isValueFinite(point.y)
+                    ? point.y
+                    : 0;
+
+                const baseline: number = value < 0
+                    ? negativeTop
+                    : positiveTop;
+
+                const top: number = baseline + value;
+
+                if (value < 0) {
+                    negativeTop = top;
+                } else {
+                    positiveTop = top;
+                }
+
+                point.stackedY0 = toAxisUnits(baseline);
+                point.stackedY1 = toAxisUnits(top);
+
+                this.applyYArguments(seriesGroup.y, point.stackedY1);
+            });
+        }
+
+        if (isStacked100) {
+            seriesGroup.y.format = DataConverter.Stacked100Format;
+            seriesGroup.y.isPercentage = true;
+        }
     }
 
     /**

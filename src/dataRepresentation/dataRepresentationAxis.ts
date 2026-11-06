@@ -38,6 +38,9 @@ export interface IDataRepresentationAxisBase {
 
 export interface IDataRepresentationAxis extends IDataRepresentationAxisBase, IDataRepresentationFormat {
     scale: DataRepresentationScale;
+    // Set on a Stacked 100% axis, whose values are shares of the total rather than
+    // amounts in the unit of the measure
+    isPercentage?: boolean;
 }
 
 export interface IDataRepresentationX extends IDataRepresentationAxis {

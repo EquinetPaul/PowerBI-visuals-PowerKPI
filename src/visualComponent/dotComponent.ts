@@ -26,7 +26,10 @@
 
 import powerbi from "powerbi-visuals-api";
 
-import { IDataRepresentationPoint } from "../dataRepresentation/dataRepresentationPoint";
+import {
+    getPlottedY,
+    IDataRepresentationPoint,
+} from "../dataRepresentation/dataRepresentationPoint";
 import { DataRepresentationScale } from "../dataRepresentation/dataRepresentationScale";
 import { BaseComponent } from "./base/baseComponent";
 import { IVisualComponentConstructorOptions } from "./base/visualComponentConstructorOptions";
@@ -83,7 +86,7 @@ export class DotComponent extends BaseComponent<IVisualComponentConstructorOptio
         const isHighContrast: boolean = colorPalette.isHighContrast;
         this.element
             .attr("cx", xScale.scale(point.x))
-            .attr("cy", yScale.scale(point.y))
+            .attr("cy", yScale.scale(getPlottedY(point)))
             .attr("r", thickness * radiusFactor)
             .style("fill", isHighContrast ? colorPalette.foreground.value : point.color);
     }

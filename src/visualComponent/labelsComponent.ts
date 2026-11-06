@@ -39,7 +39,10 @@ import {
     valueFormatter,
 } from "powerbi-visuals-utils-formattingutils";
 
-import { IDataRepresentationPoint } from "../dataRepresentation/dataRepresentationPoint";
+import {
+    getPlottedY,
+    IDataRepresentationPoint,
+} from "../dataRepresentation/dataRepresentationPoint";
 import { DataRepresentationPointFilter } from "../dataRepresentation/dataRepresentationPointFilter";
 import { DataRepresentationScale } from "../dataRepresentation/dataRepresentationScale";
 import { IDataRepresentationSeries } from "../dataRepresentation/dataRepresentationSeries";
@@ -187,7 +190,8 @@ export class LabelsComponent extends BaseComponent<IVisualComponentConstructorOp
                     const parentShape: NewLabelUtils.labelLayout.LabelParentPoint = {
                         point: {
                             x: xScale.scale(point.x),
-                            y: yScale.scale(point.y),
+                            // The label sits on the drawn point but shows the raw value
+                            y: yScale.scale(getPlottedY(point)),
                         },
                         radius: 0,
                         validPositions: [

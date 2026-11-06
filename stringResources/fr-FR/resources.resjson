@@ -119,5 +119,14 @@
   "Visual_Top_Center": "Centre supérieur",
   "Visual_Bottom_Center": "Inférieur centre",
   "Visual_Left_Center": "À gauche au centre",
-  "Visual_Right_Center": "Centre droit"
+  "Visual_Right_Center": "Centre droit",
+  "Visual_Tertiary_Values": "Valeurs tertiaires",
+  "Visual_Tertiary_Y_Axis": "Axe des Y tertiaire",
+  "Visual_Tertiary_Y_Axis_Reference": "Lignes de référence de l’axe Y tertiaire",
+  "Visual_Line_And_Markers": "Ligne et marqueurs",
+  "Visual_Display_Mode": "Affichage",
+  "Visual_Display_Mode_Description": "Mode de tracé des séries de cet axe : chacune à sa propre valeur, empilées les unes sur les autres, ou empilées en part de leur total",
+  "Visual_Display_Mode_Standard": "Standard",
+  "Visual_Display_Mode_Stacked": "Empilé",
+  "Visual_Display_Mode_Stacked_100": "Empilé 100 %"
 }

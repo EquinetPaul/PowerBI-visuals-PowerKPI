@@ -50,6 +50,7 @@ import { IVisualComponentConstructorOptions } from "../base/visualComponentConst
 import { IVisualComponentRenderOptionsBase } from "../base/visualComponentRenderOptions";
 
 import {
+    getPlottedY,
     IDataRepresentationPoint,
     IDataRepresentationPointGradientColor,
 } from "../../dataRepresentation/dataRepresentationPoint";
@@ -202,7 +203,7 @@ export class LineComponent extends BaseComponent<IVisualComponentConstructorOpti
                 return xScale.scale(data.x);
             })
             .y((data: IDataRepresentationPoint) => {
-                return yScale.scale(data.y);
+                return yScale.scale(getPlottedY(data));
             })
             .curve(this.getInterpolator(interpolation));
     }

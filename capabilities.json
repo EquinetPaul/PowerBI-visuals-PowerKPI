@@ -25,6 +25,12 @@
       "kind": "Measure"
     },
     {
+      "name": "TertiaryValues",
+      "displayNameKey": "Visual_Tertiary_Values",
+      "displayName": "Tertiary Values",
+      "kind": "Measure"
+    },
+    {
       "name": "KPI",
       "displayNameKey": "Visual_KPI_Indicator_Index",
       "displayName": "KPI Indicator Index",
@@ -885,7 +891,8 @@
             "enumeration": [
               { "value": "line" },
               { "value": "area"},
-              { "value": "scatter"}]
+              { "value": "scatter"},
+              { "value": "lineMarkers"}]
           }
         },
         "thickness": {
@@ -1148,6 +1155,21 @@
     },
     "yAxis": {
       "properties": {
+        "displayMode": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "standard"
+              },
+              {
+                "value": "stacked"
+              },
+              {
+                "value": "stacked100"
+              }
+            ]
+          }
+        },
         "show": {
           "type": {
             "bool": true
@@ -1232,6 +1254,120 @@
     },
     "secondaryYAxis": {
       "properties": {
+        "displayMode": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "standard"
+              },
+              {
+                "value": "stacked"
+              },
+              {
+                "value": "stacked100"
+              }
+            ]
+          }
+        },
+        "show": {
+          "type": {
+            "bool": true
+          }
+        },
+        "fontColor": {
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "displayUnits": {
+          "type": {
+            "formatting": {
+              "labelDisplayUnits": true
+            }
+          },
+          "suppressFormatPainterCopy": true
+        },
+        "precision": {
+          "placeHolderText": "Auto",
+          "type": {
+            "numeric": true
+          },
+          "suppressFormatPainterCopy": true
+        },
+        "fontSize": {
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "percentile": {
+          "type": {
+            "numeric": true
+          },
+          "suppressFormatPainterCopy": true
+        },
+        "fontFamily": {
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
+        },
+        "min": {
+          "type": {
+            "numeric": true
+          },
+          "placeHolderText": "Auto",
+          "suppressFormatPainterCopy": true
+        },
+        "max": {
+          "type": {
+            "numeric": true
+          },
+          "placeHolderText": "Auto",
+          "suppressFormatPainterCopy": true
+        },
+        "fixedLabelWidthMode": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "auto"
+              },
+              {
+                "value": "fixed"
+              }
+            ]
+          }
+        },
+        "fixedLabelWidth": {
+          "type": {
+            "numeric": true
+          }
+        }
+      }
+    },
+    "tertiaryYAxis": {
+      "properties": {
+        "displayMode": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "standard"
+              },
+              {
+                "value": "stacked"
+              },
+              {
+                "value": "stacked100"
+              }
+            ]
+          }
+        },
         "show": {
           "type": {
             "bool": true
@@ -1363,6 +1499,30 @@
       }
     },
     "secondaryReferenceLineOfYAxis": {
+      "properties": {
+        "show": {
+          "type": {
+            "bool": true
+          }
+        },
+        "color": {
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "thickness": {
+          "type": {
+            "numeric": true
+          },
+          "suppressFormatPainterCopy": true
+        }
+      }
+    },
+    "tertiaryReferenceLineOfYAxis": {
       "properties": {
         "show": {
           "type": {
@@ -1538,6 +1698,9 @@
           "SecondaryValues": {
             "max": 0
           },
+          "TertiaryValues": {
+            "max": 0
+          },
           "KPI": {
             "max": 0
           },
@@ -1559,6 +1722,9 @@
             "max": 1
           },
           "SecondaryValues": {
+            "max": 1
+          },
+          "TertiaryValues": {
             "max": 1
           },
           "KPI": {
@@ -1602,6 +1768,9 @@
             "max": 1
           },
           "SecondaryValues": {
+            "max": 1
+          },
+          "TertiaryValues": {
             "max": 1
           },
           "KPI": {
@@ -1658,6 +1827,11 @@
               {
                 "for": {
                   "in": "SecondaryValues"
+                }
+              },
+              {
+                "for": {
+                  "in": "TertiaryValues"
                 }
               },
               {

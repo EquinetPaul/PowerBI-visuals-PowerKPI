@@ -36,6 +36,8 @@ import { IVisualComponent } from "../base/visualComponent";
 import { IVisualComponentConstructorOptions } from "../base/visualComponentConstructorOptions";
 
 import {
+    getPlottedBaseline,
+    getPlottedY,
     IDataRepresentationPoint,
     IDataRepresentationPointGradientColor,
 } from "../../dataRepresentation/dataRepresentationPoint";
@@ -150,9 +152,17 @@ export class AreaComponent
             .x((dataPoint: IDataRepresentationPoint) => {
                 return xScale.scale(dataPoint.x);
             })
-            .y0(viewport.height)
+            // A stacked area fills the band down to the series below it; a standard one
+            // runs down to the bottom of the chart
+            .y0((dataPoint: IDataRepresentationPoint) => {
+                const baseline: number | undefined = getPlottedBaseline(dataPoint);
+
+                return baseline === undefined
+                    ? viewport.height
+                    : yScale.scale(baseline);
+            })
             .y1((dataPoint: IDataRepresentationPoint) => {
-                return yScale.scale(dataPoint.y);
+                return yScale.scale(getPlottedY(dataPoint));
             })
             .curve(this.getInterpolator(interpolation));
     }

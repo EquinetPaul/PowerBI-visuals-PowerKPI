@@ -132,6 +132,13 @@ export class Settings extends formattingSettings.Model {
         axisViewportToDecreaseFontSize, 
         axisViewportToIncreaseDensity
     );
+
+    public tertiaryYAxis: YAxisDescriptor = new YAxisDescriptor(
+        "tertiaryYAxis",
+        "Visual_Tertiary_Y_Axis",
+        axisViewportToDecreaseFontSize,
+        axisViewportToIncreaseDensity
+    );
     public referenceLineOfXAxis: AxisReferenceLineDescriptor = new AxisReferenceLineDescriptor(
         "referenceLineOfXAxis", 
         "Visual_X_Axis_Reference", 
@@ -144,6 +151,12 @@ export class Settings extends formattingSettings.Model {
     public secondaryReferenceLineOfYAxis: AxisReferenceLineDescriptor = new AxisReferenceLineDescriptor(
         "secondaryReferenceLineOfYAxis", 
         "Visual_Secondary_Y_Axis_Reference", 
+        false
+    );
+
+    public tertiaryReferenceLineOfYAxis: AxisReferenceLineDescriptor = new AxisReferenceLineDescriptor(
+        "tertiaryReferenceLineOfYAxis",
+        "Visual_Tertiary_Y_Axis_Reference",
         false
     );
     public tooltipLabel: TooltipLabelDescriptor = new TooltipLabelDescriptor();
@@ -162,8 +175,9 @@ export class Settings extends formattingSettings.Model {
         this.kpiIndicatorLabel, this.secondKPIIndicatorValue, this.secondKPIIndicatorLabel, 
         this.actualValueKPI, this.actualLabelKPI, this.dateValueKPI, this.dateLabelKPI,
         this.labels, this.line, this.legend, this.xAxis,
-        this.yAxis, this.secondaryYAxis, this.referenceLineOfXAxis, this.referenceLineOfYAxis,
-        this.secondaryReferenceLineOfYAxis, this.tooltipLabel, this.tooltipVariance, 
+        this.yAxis, this.secondaryYAxis, this.tertiaryYAxis, this.referenceLineOfXAxis,
+        this.referenceLineOfYAxis, this.secondaryReferenceLineOfYAxis, this.tertiaryReferenceLineOfYAxis,
+        this.tooltipLabel, this.tooltipVariance, 
         this.secondTooltipVariance, this.tooltipValues, this.zoomSlider
     ]
     
@@ -235,6 +249,10 @@ export class Settings extends formattingSettings.Model {
             case "secondaryReferenceLineOfYAxis": {
                 return !dataRepresentation?.groups?.[1]
             }
+            case "tertiaryYAxis":
+            case "tertiaryReferenceLineOfYAxis": {
+                return !dataRepresentation?.groups?.[2]
+            }
             default: {
                 return false
             }
@@ -271,10 +289,21 @@ export class Settings extends formattingSettings.Model {
         this.kpiIndicatorValue.fontColor.visible = !this.kpiIndicatorValue.matchKPIColor.value;
     }
 
+    /**
+     * The Y axis cards in the order of the value roles they belong to: Values, Secondary
+     * Values and Tertiary Values.
+     */
+    public getYAxes(): YAxisDescriptor[] {
+        return [this.yAxis, this.secondaryYAxis, this.tertiaryYAxis];
+    }
+
     private filterYAxisProperties() {
-        // The pixel width input only applies when the label area sizing is Fixed
-        [this.yAxis, this.secondaryYAxis].forEach((axis: YAxisDescriptor) => {
+        this.getYAxes().forEach((axis: YAxisDescriptor) => {
+            // The pixel width input only applies when the label area sizing is Fixed
             axis.fixedLabelWidth.visible = axis.isLabelWidthFixed();
+            // A Stacked 100% axis always reads as a share of the total, so scaling its
+            // labels by thousands or millions would only turn them into nonsense
+            axis.displayUnits.visible = !axis.isStacked100();
         });
     }
 

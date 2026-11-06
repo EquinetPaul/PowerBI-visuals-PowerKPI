@@ -127,5 +127,14 @@
     "Visual_Top_Center": "Top Center",
     "Visual_Bottom_Center": "Bottom Center",
     "Visual_Left_Center": "Left Center",
-    "Visual_Right_Center": "Right Center"
+    "Visual_Right_Center": "Right Center",
+    "Visual_Tertiary_Values": "Tertiary Values",
+    "Visual_Tertiary_Y_Axis": "Tertiary Y Axis",
+    "Visual_Tertiary_Y_Axis_Reference": "Tertiary Y Axis Reference Lines",
+    "Visual_Line_And_Markers": "Line and markers",
+    "Visual_Display_Mode": "Display",
+    "Visual_Display_Mode_Description": "How the series of this axis are drawn: each from its own value, stacked on top of each other, or stacked as a share of their total",
+    "Visual_Display_Mode_Standard": "Standard",
+    "Visual_Display_Mode_Stacked": "Stacked",
+    "Visual_Display_Mode_Stacked_100": "Stacked 100%"
 }

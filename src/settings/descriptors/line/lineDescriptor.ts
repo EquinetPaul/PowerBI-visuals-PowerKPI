@@ -99,6 +99,11 @@ const lineTypeOptions = [
         value: LineType.scatter,
         displayName: "Scatter",
         displayNameKey: "Visual_Scatter"
+    },
+    {
+        value: LineType.lineMarkers,
+        displayName: "Line and markers",
+        displayNameKey: "Visual_Line_And_Markers"
     }
 ]
 

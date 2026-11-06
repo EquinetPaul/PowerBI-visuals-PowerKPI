@@ -31,7 +31,10 @@ import { DataRepresentationScale } from "../../dataRepresentation/dataRepresenta
 import { BaseComponent } from "../base/baseComponent";
 import { IVisualComponentConstructorOptions } from "../base/visualComponentConstructorOptions";
 
-import { IDataRepresentationPoint } from "../../dataRepresentation/dataRepresentationPoint";
+import {
+    getPlottedY,
+    IDataRepresentationPoint,
+} from "../../dataRepresentation/dataRepresentationPoint";
 
 import { ILineComponentRenderOptions } from "./lineComponent";
 
@@ -106,7 +109,7 @@ export class ScatterComponent extends BaseComponent<IVisualComponentConstructorO
             .on("click", (event) => this.clickHandler(event))
             .merge(pointSelection)
             .attr("cx", (point: IDataRepresentationPoint) => xScale.scale(point.x))
-            .attr("cy", (point: IDataRepresentationPoint) => yScale.scale(point.y))
+            .attr("cy", (point: IDataRepresentationPoint) => yScale.scale(getPlottedY(point)))
             // The same radius formula as the current value dot, so both are sized
             // consistently by the line thickness and the dots radius factor.
             .attr("r", thickness * radiusFactor)

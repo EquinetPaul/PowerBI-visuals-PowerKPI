@@ -50,7 +50,44 @@ const fixedLabelWidthModeOptions = [
     }
 ]
 
+/**
+ * How the series bound to an axis are drawn relative to each other. Standard draws every
+ * series from its own value, Stacked piles them up so that the top of the last one is the
+ * total, and Stacked 100% scales each pile to the share of the total it represents.
+ */
+export enum YAxisDisplayMode {
+    standard = "standard",
+    stacked = "stacked",
+    stacked100 = "stacked100",
+}
+
+const displayModeOptions = [
+    {
+        value: YAxisDisplayMode.standard,
+        displayName: "Standard",
+        displayNameKey: "Visual_Display_Mode_Standard"
+    },
+    {
+        value: YAxisDisplayMode.stacked,
+        displayName: "Stacked",
+        displayNameKey: "Visual_Display_Mode_Stacked"
+    },
+    {
+        value: YAxisDisplayMode.stacked100,
+        displayName: "Stacked 100%",
+        displayNameKey: "Visual_Display_Mode_Stacked_100"
+    }
+]
+
 export class YAxisDescriptor extends AxisDescriptor {
+    public displayMode = new formattingSettings.ItemDropdown({
+        name: "displayMode",
+        displayNameKey: "Visual_Display_Mode",
+        descriptionKey: "Visual_Display_Mode_Description",
+        items: displayModeOptions,
+        value: displayModeOptions.filter(el => el.value === YAxisDisplayMode.standard)[0]
+    });
+
     public min = new formattingSettings.NumUpDown({
         name: "min",
         displayNameKey: "Visual_Min",
@@ -97,6 +134,7 @@ export class YAxisDescriptor extends AxisDescriptor {
         super(viewportToBeHidden, viewportToIncreaseDensity)
 
         this.slices = [
+            this.displayMode,
             this.font,
             this.displayUnits,
             this.precision,
@@ -125,13 +163,28 @@ export class YAxisDescriptor extends AxisDescriptor {
         }
     }
 
+    public getDisplayMode(): YAxisDisplayMode {
+        const mode: YAxisDisplayMode = this.displayMode.value?.value as YAxisDisplayMode;
+        return mode === YAxisDisplayMode.stacked || mode === YAxisDisplayMode.stacked100
+            ? mode
+            : YAxisDisplayMode.standard;
+    }
+
+    public isStacked(): boolean {
+        return this.getDisplayMode() !== YAxisDisplayMode.standard;
+    }
+
+    public isStacked100(): boolean {
+        return this.getDisplayMode() === YAxisDisplayMode.stacked100;
+    }
+
     public isLabelWidthFixed(): boolean {
         return this.fixedLabelWidthMode.value.value === FixedLabelWidthMode.fixed;
     }
 
     public setLocalizedDisplayName(localizationManager: ILocalizationManager) {
         super.setLocalizedDisplayName(localizationManager);
-        fixedLabelWidthModeOptions.forEach(option => {
+        [...fixedLabelWidthModeOptions, ...displayModeOptions].forEach(option => {
             option.displayName = localizationManager.getDisplayName(option.displayNameKey)
         });
     }
