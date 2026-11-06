@@ -90,6 +90,8 @@ export class PowerKPI implements IVisual {
     private localizationManager: ILocalizationManager;
     private settings: Settings;
     private zoom: IDataRepresentationZoom = createDefaultZoom();
+    // The fields the zoom was picked on, see getBoundFieldsKey
+    private zoomFieldsKey: string;
     private updateOptions: VisualUpdateOptions;
     private formattingSettingsService: FormattingSettingsService;
     private colorPalette: ISandboxExtendedColorPalette;
@@ -132,9 +134,19 @@ export class PowerKPI implements IVisual {
     public update(options: VisualUpdateOptions): void {
         this.events.renderingStarted(options);
 
-        // A zoom range only makes sense against the data it was picked on, so it is
-        // reset whenever Power BI pushes a new update
-        this.zoom = createDefaultZoom();
+        // The zoom is view state that has to survive every update that keeps the same
+        // fields - a resize, a change of view mode, a formatting change, a filter - just
+        // like the zoom of the built in visuals. Being a fraction of the axis range, it
+        // still means the same thing once a filter narrows the data. It is only reset
+        // when the fields bound to the visual change, a range picked on other fields
+        // having no meaning on the new ones.
+        const fieldsKey: string = PowerKPI.getBoundFieldsKey(options && options.dataViews && options.dataViews[0]);
+
+        if (fieldsKey !== this.zoomFieldsKey) {
+            this.zoom = createDefaultZoom();
+            this.zoomFieldsKey = fieldsKey;
+        }
+
         this.updateOptions = options;
 
         this.convertAndRender(options);
@@ -149,6 +161,7 @@ export class PowerKPI implements IVisual {
      */
     private convertAndRender(options: VisualUpdateOptions): void {
         this.settings = this.formattingSettingsService.populateFormattingSettingsModel(Settings, options.dataViews[0]);
+        this.zoom = this.getZoomOfShownSliders(this.zoom, this.settings);
 
         const dataView: powerbi.DataView = options && options.dataViews && options.dataViews[0];
 
@@ -188,6 +201,42 @@ export class PowerKPI implements IVisual {
         }
 
         this.render(dataRepresentation);
+    }
+
+    /**
+     * Identifies the fields bound to the visual - the axis column and the measures, with
+     * the role each one fills - regardless of the values a filter leaves in them.
+     */
+    public static getBoundFieldsKey(dataView: powerbi.DataView): string {
+        const columns: powerbi.DataViewMetadataColumn[] = dataView
+            && dataView.metadata
+            && dataView.metadata.columns
+            || [];
+
+        return columns
+            .map((column: powerbi.DataViewMetadataColumn) => {
+                const roles: string = Object.keys(column.roles || {})
+                    .filter((role: string) => column.roles[role])
+                    .sort()
+                    .join("+");
+
+                return `${roles}:${column.queryName || column.displayName}`;
+            })
+            .sort()
+            .join("|");
+    }
+
+    /**
+     * A zoom slider that is turned off no longer narrows its axis: the range it kept would
+     * otherwise stay applied with no way to see or change it.
+     */
+    private getZoomOfShownSliders(zoom: IDataRepresentationZoom, settings: Settings): IDataRepresentationZoom {
+        const fullZoom: IDataRepresentationZoom = createDefaultZoom();
+
+        return {
+            x: settings.zoomSlider.isShownForXAxis() ? zoom.x : fullZoom.x,
+            y: settings.zoomSlider.isShownForYAxis() ? zoom.y : fullZoom.y,
+        };
     }
 
     private applyZoom(axis: ZoomSliderAxis, range: IDataRepresentationZoomRange): void {
