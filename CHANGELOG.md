@@ -1,3 +1,10 @@
+## 3.4.0.0
+### Features
+* Added axis titles to the X axis, Y axis, secondary Y axis and tertiary Y axis cards, off by default: a Title toggle, the title text, its font and its colour. Left empty, the text names what the axis shows - the field of the X axis, the measures of a Y axis. The Y titles are drawn along the axis, outside its labels: on the left of the axis left of the chart, on the right of the axes right of it. The X title is centred underneath the labels. The chart gives up the room the titles take, and a title longer than its axis is shortened with an ellipsis
+### Fixes
+* Fixed the zoom being reset whenever the visual was resized, a formatting setting changed or a filter was applied. The zoom is now kept for as long as the same fields are bound, and is only dropped when other fields are bound or the slider of its axis is turned off
+* Fixed specs failing at random: the test roots of powerbi-visuals-utils-testutils draw their id from a single random 16 bit number and are never removed, so an id now and then matched an earlier root that already held the marks of another spec
+
 ## 3.3.0.0
 ### Features
 * Added a Draw order setting to the Y axis, secondary Y axis and tertiary Y axis cards. Back draws the series of the axis first, behind the series of the other axes, and Front draws them last, over them. Auto, the default, keeps the automatic order, in which the series reaching highest on screen is drawn first; it also orders axes sharing a choice and the series of a same axis
