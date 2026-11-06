@@ -1150,6 +1150,49 @@
           },
           "placeHolderText": "Auto",
           "suppressFormatPainterCopy": true
+        },
+        "showTitle": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleText": {
+          "type": {
+            "text": true
+          }
+        },
+        "titleFontSize": {
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "titleFontFamily": {
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
+        },
+        "titleBold": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleItalic": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleColor": {
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         }
       }
     },
@@ -1263,6 +1306,49 @@
         "fixedLabelWidth": {
           "type": {
             "numeric": true
+          }
+        },
+        "showTitle": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleText": {
+          "type": {
+            "text": true
+          }
+        },
+        "titleFontSize": {
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "titleFontFamily": {
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
+        },
+        "titleBold": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleItalic": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleColor": {
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
           }
         }
       }
@@ -1378,6 +1464,49 @@
           "type": {
             "numeric": true
           }
+        },
+        "showTitle": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleText": {
+          "type": {
+            "text": true
+          }
+        },
+        "titleFontSize": {
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "titleFontFamily": {
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
+        },
+        "titleBold": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleItalic": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleColor": {
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         }
       }
     },
@@ -1491,6 +1620,49 @@
         "fixedLabelWidth": {
           "type": {
             "numeric": true
+          }
+        },
+        "showTitle": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleText": {
+          "type": {
+            "text": true
+          }
+        },
+        "titleFontSize": {
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "titleFontFamily": {
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
+        },
+        "titleBold": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleItalic": {
+          "type": {
+            "bool": true
+          }
+        },
+        "titleColor": {
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
           }
         }
       }

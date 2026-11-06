@@ -98,6 +98,7 @@ export interface AxisInfo {
 export class DataConverter extends VarianceConverter implements IConverter {
     // The labels of a Stacked 100% axis read as a share of the total
     private static Stacked100Format: string = "0%";
+    private static AxisNameSeparator: string = ", ";
 
     private axisInfo: AxisInfo;
 
@@ -229,6 +230,8 @@ export class DataConverter extends VarianceConverter implements IConverter {
         // container still each receive a distinct default color.
         let seriesColorIndex: number = 0;
 
+        const measureNamesByGroup: string[][] = [];
+
         // eslint-disable-next-line max-lines-per-function
         dataView.categorical.values.grouped().forEach((columnGroup: powerbi.DataViewValueColumnGroup) => {
             const groupedValues: powerbi.DataViewValueColumn[] = columnGroup.values;
@@ -281,6 +284,17 @@ export class DataConverter extends VarianceConverter implements IConverter {
                     }
 
                     const seriesGroup: IDataRepresentationSeriesGroup = dataRepresentation.groups[groupIndex];
+
+                    // The axis is named after the measures it shows, each listed once even
+                    // when a legend splits it into a series per group
+                    const measureName: string = groupedValue.source.displayName;
+                    const groupMeasureNames: string[] = measureNamesByGroup[groupIndex]
+                        || (measureNamesByGroup[groupIndex] = []);
+
+                    if (measureName && groupMeasureNames.indexOf(measureName) === -1) {
+                        groupMeasureNames.push(measureName);
+                        seriesGroup.y.name = groupMeasureNames.join(DataConverter.AxisNameSeparator);
+                    }
 
                     const currentPoint: IDataRepresentationPointIndexed = {
                         color: undefined,

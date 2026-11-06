@@ -26,6 +26,7 @@
 
 import powerbi from "powerbi-visuals-api";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
+import { pixelConverter } from "powerbi-visuals-utils-typeutils";
 
 import {
     IDescriptor,
@@ -38,6 +39,18 @@ export enum AxisType {
     categorical,
 }
 
+/**
+ * What an axis title is drawn with, resolved from the settings of its card.
+ */
+export interface IAxisTitle {
+    text: string;
+    fontSizeInPx: number;
+    fontFamily: string;
+    color: string;
+    isBold: boolean;
+    isItalic: boolean;
+}
+
 export class AxisDescriptor
     extends NumberDescriptorBase
     implements IDescriptor {
@@ -48,6 +61,72 @@ export class AxisDescriptor
         name: "fontColor",
         displayNameKey: "Visual_Font_Color",
         value: { value: "rgb(0,0,0)" }
+    });
+
+    // Off by default, so a report built before axis titles existed renders unchanged
+    public showTitle = new formattingSettings.ToggleSwitch({
+        name: "showTitle",
+        displayNameKey: "Visual_Axis_Title",
+        value: false
+    });
+
+    // Left empty, the title names what the axis shows: the field of the X axis, the
+    // measures of a Y axis
+    public titleText = new formattingSettings.TextInput({
+        name: "titleText",
+        displayNameKey: "Visual_Title_Text",
+        value: "",
+        placeholder: ""
+    });
+
+    protected minTitleFontSize: number = 8;
+    protected maxTitleFontSize: number = 60;
+
+    public titleFontSize = new formattingSettings.NumUpDown({
+        name: "titleFontSize",
+        displayNameKey: "Visual_Font_Size",
+        value: 9,
+        options: {
+            minValue: {
+                type: powerbi.visuals.ValidatorType.Min,
+                value: this.minTitleFontSize,
+            },
+            maxValue: {
+                type: powerbi.visuals.ValidatorType.Max,
+                value: this.maxTitleFontSize,
+            },
+        }
+    });
+
+    public titleFontFamily = new formattingSettings.FontPicker({
+        name: "titleFontFamily",
+        displayNameKey: "Visual_Font_Family",
+        value: "Segoe UI, wf_segoe-ui_normal, helvetica, arial, sans-serif"
+    });
+
+    public titleBold = new formattingSettings.ToggleSwitch({
+        name: "titleBold",
+        value: false
+    });
+
+    public titleItalic = new formattingSettings.ToggleSwitch({
+        name: "titleItalic",
+        value: false
+    });
+
+    public titleFont = new formattingSettings.FontControl({
+        name: "titleFont",
+        displayNameKey: "Visual_Title_Font",
+        fontFamily: this.titleFontFamily,
+        fontSize: this.titleFontSize,
+        bold: this.titleBold,
+        italic: this.titleItalic,
+    });
+
+    public titleColor = new formattingSettings.ColorPicker({
+        name: "titleColor",
+        displayNameKey: "Visual_Title_Color",
+        value: { value: "rgb(102,102,102)" }
     });
 
     private shouldDensityBeAtMax: boolean = false;
@@ -68,6 +147,13 @@ export class AxisDescriptor
     public parse(options: IDescriptorParserOptions) {
         super.parse(options);
 
+        // The formatting pane validators only guard UI input, so a value set through the
+        // API is clamped here as well
+        this.titleFontSize.value = Math.min(
+            this.maxTitleFontSize,
+            Math.max(this.minTitleFontSize, this.titleFontSize.value || this.minTitleFontSize),
+        );
+
         if (this.shouldDensityBeAtMax) {
             this.percentile.value = this.maxDensity;
         }
@@ -78,5 +164,40 @@ export class AxisDescriptor
             && (options.viewport.width <= this.viewportToIncreaseDensity.width
                 ||
                 options.viewport.height <= this.viewportToIncreaseDensity.height);
+    }
+
+    /**
+     * The settings of the title that follow the Title toggle, shown in the pane only
+     * while the title is on.
+     */
+    public getTitleSlices(): formattingSettings.Slice[] {
+        return [this.titleText, this.titleFont, this.titleColor];
+    }
+
+    /**
+     * The title to draw next to the axis, or null when there is none: the axis or its
+     * title is turned off, or there is no text to show.
+     *
+     * @param defaultText What the title reads when the author left its text empty.
+     */
+    public getTitle(defaultText: string): IAxisTitle | null {
+        if (!this.isElementShown() || !this.showTitle.value) {
+            return null;
+        }
+
+        const text: string = (this.titleText.value || "").trim() || (defaultText || "").trim();
+
+        if (!text) {
+            return null;
+        }
+
+        return {
+            color: this.titleColor.value.value,
+            fontFamily: this.titleFontFamily.value,
+            fontSizeInPx: pixelConverter.fromPointToPixel(this.titleFontSize.value),
+            isBold: !!this.titleBold.value,
+            isItalic: !!this.titleItalic.value,
+            text,
+        };
     }
 }

@@ -51,6 +51,7 @@ import { SubtitleDescriptor } from "./descriptors/subtitleDescriptor";
 import { ZoomSliderDescriptor } from "./descriptors/zoomSliderDescriptor";
 import { XAxisDescriptor } from "./descriptors/axis/xAxisDescriptor";
 import { YAxisDescriptor } from "./descriptors/axis/yAxisDescriptor";
+import { AxisDescriptor } from "./descriptors/axis/axisDescriptor";
 import { AxisReferenceLineDescriptor } from "./descriptors/axis/referenceLine/axisReferenceLineDescriptor";
 import { TooltipVarianceDescriptor } from "./descriptors/tooltip/tooltipVarianceDescriptor";
 import { TooltipLabelDescriptor } from "./descriptors/tooltip/tooltipLabelDescriptor";
@@ -215,6 +216,7 @@ export class Settings extends formattingSettings.Model {
         this.filterKPIIndicatorProperties(dataRepresentation);
         this.filterKPIIndicatorValueProperties();
         this.filterYAxisProperties();
+        this.filterAxisTitleProperties(dataRepresentation);
         this.filterZoomSliderProperties(axisType);
         this.filterSettingsPropertiesByAxisType(axisType);
         this.setLocalizedDisplayNames(localizationManager);
@@ -295,6 +297,28 @@ export class Settings extends formattingSettings.Model {
      */
     public getYAxes(): YAxisDescriptor[] {
         return [this.yAxis, this.secondaryYAxis, this.tertiaryYAxis];
+    }
+
+    /**
+     * The title settings follow its toggle, and the text input hints at what an empty
+     * title reads: the field of the X axis, the measures of a Y axis.
+     */
+    private filterAxisTitleProperties(dataRepresentation: IDataRepresentation) {
+        const axes: Array<{ descriptor: AxisDescriptor; defaultText: string }> = [
+            { descriptor: this.xAxis, defaultText: dataRepresentation?.x?.name },
+            ...this.getYAxes().map((descriptor: YAxisDescriptor, index: number) => ({
+                defaultText: dataRepresentation?.groups?.[index]?.y?.name,
+                descriptor,
+            })),
+        ];
+
+        axes.forEach(({ descriptor, defaultText }) => {
+            descriptor.getTitleSlices().forEach((slice: formattingSettings.Slice) => {
+                slice.visible = !!descriptor.showTitle.value;
+            });
+
+            descriptor.titleText.placeholder = defaultText || "";
+        });
     }
 
     private filterYAxisProperties() {

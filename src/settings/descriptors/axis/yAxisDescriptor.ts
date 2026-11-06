@@ -183,7 +183,9 @@ export class YAxisDescriptor extends AxisDescriptor {
             this.min,
             this.max,
             this.fixedLabelWidthMode,
-            this.fixedLabelWidth
+            this.fixedLabelWidth,
+            this.showTitle,
+            ...this.getTitleSlices(),
         ]
         this.name = name;
         this.displayNameKey = displayNameKey;

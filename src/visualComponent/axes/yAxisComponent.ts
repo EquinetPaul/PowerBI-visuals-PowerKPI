@@ -44,6 +44,11 @@ import { IVisualComponentViewport } from "../base/visualComponent";
 import { IVisualComponentConstructorOptions } from "../base/visualComponentConstructorOptions";
 
 import { createAxis } from "./helpers/axisHelper";
+import {
+    getAxisTitleThickness,
+    renderAxisTitle,
+} from "./helpers/axisTitleHelper";
+import { IAxisTitle } from "../../settings/descriptors/axis/axisDescriptor";
 
 import {
     AxisBaseComponent,
@@ -59,6 +64,9 @@ export interface IYAxisComponentRenderOptions {
     margin: IMargin;
     colorPalette: ISandboxExtendedColorPalette;
     locale: string;
+    // The axes on the right of the chart get their title on their right, away from the
+    // chart, the same way the axis on its left gets it on its left
+    isOnTheRight?: boolean;
 }
 
 export class YAxisComponent
@@ -75,6 +83,10 @@ export class YAxisComponent
     private maxLabelHeight: number = 0;
 
     private valueFormat: string = valueFormatter.DefaultNumericFormat;
+
+    private title: IAxisTitle | null = null;
+    private titleThickness: number = 0;
+    private titleClassName: string = this.getClassNameWithPrefix("axisTitle");
 
     constructor(options: IVisualComponentConstructorOptions) {
         super();
@@ -123,6 +135,11 @@ export class YAxisComponent
             fontSize,
             settings.font.fontFamily.value,
         );
+
+        // Measured here so that getViewport reserves the room of the title before the
+        // plot lays its parts out
+        this.title = settings.getTitle(axis.name);
+        this.titleThickness = getAxisTitleThickness(this.title);
     }
 
     public render(options: IYAxisComponentRenderOptions): void {
@@ -139,7 +156,8 @@ export class YAxisComponent
             margin,
             settings,
             viewport,
-            colorPalette
+            colorPalette,
+            isOnTheRight,
         } = options;
 
         const height: number = Math.max(0, viewport.height - margin.top - margin.bottom);
@@ -193,13 +211,31 @@ export class YAxisComponent
 
         this.updateViewport({
             height,
-            width: this.getTickWidth(),
+            width: this.getTickWidth() + this.titleThickness,
         });
 
+        // The title takes a band on the outer side of the labels: on the left of the
+        // axis left of the chart, on the right of the axes right of it
+        const labelsOffset: number = isOnTheRight
+            ? 0
+            : this.titleThickness;
+
         this.gElement.attr("transform", svgManipulation.translate(
-            this.maxLabelWidth + this.labelOffset,
+            labelsOffset + this.maxLabelWidth + this.labelOffset,
             this.maxLabelHeight / 2,
         ));
+
+        renderAxisTitle(this.element, this.titleClassName, {
+            colorPalette,
+            maxLength: height,
+            rotation: -90,
+            title: this.title,
+            x: isOnTheRight
+                ? this.getTickWidth() + this.titleThickness / 2
+                : this.titleThickness / 2,
+            // The middle of the span the ticks are spread over
+            y: this.maxLabelHeight / 2 + height / 2,
+        });
 
         this.axisProperties.axis.tickFormat((item: number) => {
             const formattedLabel: string = this.formatter.format(item);
@@ -237,7 +273,7 @@ export class YAxisComponent
 
         return {
             height: this.maxLabelHeight / 2,
-            width: this.getTickWidth(),
+            width: this.getTickWidth() + this.titleThickness,
         };
     }
 

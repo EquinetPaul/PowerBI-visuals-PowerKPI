@@ -132,5 +132,8 @@
   "Visual_Draw_Order": "Ordre de tracé",
   "Visual_Draw_Order_Description": "Position des séries de cet axe par rapport aux autres axes : derrière, dans l’ordre automatique, ou devant",
   "Visual_Draw_Order_Back": "Arrière-plan",
-  "Visual_Draw_Order_Front": "Premier plan"
+  "Visual_Draw_Order_Front": "Premier plan",
+  "Visual_Axis_Title": "Titre",
+  "Visual_Title_Font": "Police du titre",
+  "Visual_Title_Color": "Couleur du titre"
 }

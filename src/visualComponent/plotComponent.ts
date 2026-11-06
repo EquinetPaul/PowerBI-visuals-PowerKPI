@@ -233,7 +233,8 @@ export class PlotComponent extends BaseContainerComponent<
                 width: reducedViewport.width,
             },
             colorPalette: colorPalette,
-            locale: locale
+            locale: locale,
+            isOnTheRight: true,
         });
 
         this.tertiaryYAxisComponent.render({
@@ -245,7 +246,8 @@ export class PlotComponent extends BaseContainerComponent<
                 width: reducedViewport.width,
             },
             colorPalette: colorPalette,
-            locale: locale
+            locale: locale,
+            isOnTheRight: true,
         });
 
         const yAxisViewport: IVisualComponentViewport = this.yAxisComponent.getViewport();

@@ -101,7 +101,9 @@ export class XAxisDescriptor extends AxisDescriptor {
             this.min,
             this.max,
             this.minDate,
-            this.maxDate
+            this.maxDate,
+            this.showTitle,
+            ...this.getTitleSlices(),
         ]
         this.name = "xAxis";
         this.displayNameKey = "Visual_X_Axis";

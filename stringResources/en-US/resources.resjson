@@ -140,5 +140,8 @@
     "Visual_Draw_Order": "Draw order",
     "Visual_Draw_Order_Description": "Where the series of this axis are drawn relative to the other axes: behind them, in the automatic order, or in front of them",
     "Visual_Draw_Order_Back": "Back",
-    "Visual_Draw_Order_Front": "Front"
+    "Visual_Draw_Order_Front": "Front",
+    "Visual_Axis_Title": "Title",
+    "Visual_Title_Font": "Title font",
+    "Visual_Title_Color": "Title color"
 }

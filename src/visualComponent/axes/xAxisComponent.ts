@@ -46,6 +46,11 @@ import { IVisualComponentViewport } from "../base/visualComponent";
 import { IVisualComponentConstructorOptions } from "../base/visualComponentConstructorOptions";
 
 import { createAxis } from "./helpers/axisHelper";
+import {
+    getAxisTitleThickness,
+    renderAxisTitle,
+} from "./helpers/axisTitleHelper";
+import { IAxisTitle } from "../../settings/descriptors/axis/axisDescriptor";
 
 import {
     AxisBaseComponent,
@@ -84,6 +89,10 @@ export class XAxisComponent
 
     private additionalLabelHeight: number = 5;
     private additionalLabelWidth: number = 8;
+
+    private title: IAxisTitle | null = null;
+    private titleThickness: number = 0;
+    private titleClassName: string = this.getClassNameWithPrefix("axisTitle");
 
     constructor(options: IVisualComponentConstructorOptions) {
         super();
@@ -158,6 +167,11 @@ export class XAxisComponent
             fontSize,
             settings.font.fontFamily.value,
         ) / 2;
+
+        // Measured here so that getViewport reserves the room of the title before the
+        // plot lays its parts out
+        this.title = settings.getTitle(axis.name);
+        this.titleThickness = getAxisTitleThickness(this.title);
     }
 
     public render(options: IXAxisComponentRenderOptions): void {
@@ -196,8 +210,13 @@ export class XAxisComponent
             return;
         }
 
+        // The title sits in a band underneath the labels
+        const labelsHeight: number = this.maxElementHeight + this.additionalLabelHeight;
+
         this.updateViewport({
-            height: this.maxElementHeight,
+            height: this.title
+                ? labelsHeight + this.titleThickness
+                : this.maxElementHeight,
             width,
         });
 
@@ -219,6 +238,16 @@ export class XAxisComponent
             .attr("font-size", settings.fontSizeInPx)
             .attr("fill", isHighContrast ? colorPalette.background.value : settings.fontColor.value.value)
             .attr("color", isHighContrast ? colorPalette.foreground.value :  settings.fontColor.value.value);
+
+        renderAxisTitle(this.element, this.titleClassName, {
+            colorPalette,
+            maxLength: width,
+            rotation: 0,
+            title: this.title,
+            // Centred under the drawing area, which the axis spans
+            x: width / 2,
+            y: labelsHeight + this.titleThickness / 2,
+        });
     }
 
     public getViewport(): IVisualComponentViewport {
@@ -231,7 +260,7 @@ export class XAxisComponent
             };
         }
 
-        const height: number = this.maxElementHeight + this.additionalLabelHeight;
+        const height: number = this.maxElementHeight + this.additionalLabelHeight + this.titleThickness;
 
         return {
             height,
