@@ -128,5 +128,9 @@
   "Visual_Display_Mode_Description": "Mode de tracé des séries de cet axe : chacune à sa propre valeur, empilées les unes sur les autres, ou empilées en part de leur total",
   "Visual_Display_Mode_Standard": "Standard",
   "Visual_Display_Mode_Stacked": "Empilé",
-  "Visual_Display_Mode_Stacked_100": "Empilé 100 %"
+  "Visual_Display_Mode_Stacked_100": "Empilé 100 %",
+  "Visual_Draw_Order": "Ordre de tracé",
+  "Visual_Draw_Order_Description": "Position des séries de cet axe par rapport aux autres axes : derrière, dans l’ordre automatique, ou devant",
+  "Visual_Draw_Order_Back": "Arrière-plan",
+  "Visual_Draw_Order_Front": "Premier plan"
 }

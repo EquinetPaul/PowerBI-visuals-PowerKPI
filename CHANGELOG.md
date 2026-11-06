@@ -1,3 +1,7 @@
+## 3.3.0.0
+### Features
+* Added a Draw order setting to the Y axis, secondary Y axis and tertiary Y axis cards. Back draws the series of the axis first, behind the series of the other axes, and Front draws them last, over them. Auto, the default, keeps the automatic order, in which the series reaching highest on screen is drawn first; it also orders axes sharing a choice and the series of a same axis
+
 ## 3.2.1.0
 ### Fixes
 * Gave this build its own visual identity - GUID, name ("Power KPI Plus") and an icon with a "+" badge. It shared the GUID of the Power KPI published on AppSource, so Power BI loaded the AppSource version in its place and none of the features of this build showed up

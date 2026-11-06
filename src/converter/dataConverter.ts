@@ -515,7 +515,35 @@ export class DataConverter extends VarianceConverter implements IConverter {
         dataRepresentation.sortedSeries = this.sortSeries(
             dataRepresentation.series,
             viewport.height,
+            this.getDrawOrderRanks(dataRepresentation),
         );
+    }
+
+    /**
+     * The draw order rank of every series, taken from the Y axis card of the group it
+     * belongs to.
+     */
+    private getDrawOrderRanks(dataRepresentation: IDataRepresentation): Map<IDataRepresentationSeries, number> {
+        const ranks: Map<IDataRepresentationSeries, number> = new Map();
+
+        dataRepresentation.groups.forEach((
+            seriesGroup: IDataRepresentationSeriesGroup,
+            seriesGroupIndex: number,
+        ) => {
+            const yAxisSettings: YAxisDescriptor = this.getYAxisSettings(dataRepresentation.settings, seriesGroupIndex);
+
+            if (!seriesGroup || !yAxisSettings) {
+                return;
+            }
+
+            const rank: number = yAxisSettings.getDrawOrderRank();
+
+            seriesGroup.series.forEach((series: IDataRepresentationSeries) => {
+                ranks.set(series, rank);
+            });
+        });
+
+        return ranks;
     }
 
     /**
@@ -715,13 +743,29 @@ export class DataConverter extends VarianceConverter implements IConverter {
         };
     }
 
+    /**
+     * Orders the series the way the chart draws them, the first one ending up at the
+     * back. The draw order picked in the Y axis cards comes first; within a same rank the
+     * series reaching highest on screen is drawn first, so that it does not hide the
+     * lower ones.
+     */
     private sortSeries(
         series: IDataRepresentationSeries[],
         height: number,
+        drawOrderRanks: Map<IDataRepresentationSeries, number> = new Map(),
     ): IDataRepresentationSeries[] {
+        const defaultRank: number = 1;
+
         return series
             .slice()
             .sort((a: IDataRepresentationSeries, b: IDataRepresentationSeries) => {
+                const rankDifference: number = (drawOrderRanks.get(a) ?? defaultRank)
+                    - (drawOrderRanks.get(b) ?? defaultRank);
+
+                if (rankDifference) {
+                    return rankDifference;
+                }
+
                 // To sort series we have to convert value to px as scales are not the same
                 const aYScale: DataRepresentationScale = a.y.scale
                     .copy()

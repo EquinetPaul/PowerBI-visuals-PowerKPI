@@ -136,5 +136,9 @@
     "Visual_Display_Mode_Description": "How the series of this axis are drawn: each from its own value, stacked on top of each other, or stacked as a share of their total",
     "Visual_Display_Mode_Standard": "Standard",
     "Visual_Display_Mode_Stacked": "Stacked",
-    "Visual_Display_Mode_Stacked_100": "Stacked 100%"
+    "Visual_Display_Mode_Stacked_100": "Stacked 100%",
+    "Visual_Draw_Order": "Draw order",
+    "Visual_Draw_Order_Description": "Where the series of this axis are drawn relative to the other axes: behind them, in the automatic order, or in front of them",
+    "Visual_Draw_Order_Back": "Back",
+    "Visual_Draw_Order_Front": "Front"
 }

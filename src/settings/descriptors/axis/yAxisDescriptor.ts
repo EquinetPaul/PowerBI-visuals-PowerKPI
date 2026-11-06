@@ -79,6 +79,37 @@ const displayModeOptions = [
     }
 ]
 
+/**
+ * Where the series of an axis are drawn relative to the series of the other axes. Back
+ * draws them first, behind everything else, and Front last, over everything else. Auto
+ * keeps the automatic order, in which the series reaching highest on screen is drawn
+ * first so that a tall area does not hide the lower series. Axes sharing a choice, and
+ * the series of a same axis, are ordered by that automatic rule.
+ */
+export enum YAxisDrawOrder {
+    back = "back",
+    auto = "auto",
+    front = "front",
+}
+
+const drawOrderOptions = [
+    {
+        value: YAxisDrawOrder.back,
+        displayName: "Back",
+        displayNameKey: "Visual_Draw_Order_Back"
+    },
+    {
+        value: YAxisDrawOrder.auto,
+        displayName: "Auto",
+        displayNameKey: "Visual_Auto"
+    },
+    {
+        value: YAxisDrawOrder.front,
+        displayName: "Front",
+        displayNameKey: "Visual_Draw_Order_Front"
+    }
+]
+
 export class YAxisDescriptor extends AxisDescriptor {
     public displayMode = new formattingSettings.ItemDropdown({
         name: "displayMode",
@@ -86,6 +117,14 @@ export class YAxisDescriptor extends AxisDescriptor {
         descriptionKey: "Visual_Display_Mode_Description",
         items: displayModeOptions,
         value: displayModeOptions.filter(el => el.value === YAxisDisplayMode.standard)[0]
+    });
+
+    public drawOrder = new formattingSettings.ItemDropdown({
+        name: "drawOrder",
+        displayNameKey: "Visual_Draw_Order",
+        descriptionKey: "Visual_Draw_Order_Description",
+        items: drawOrderOptions,
+        value: drawOrderOptions.filter(el => el.value === YAxisDrawOrder.auto)[0]
     });
 
     public min = new formattingSettings.NumUpDown({
@@ -135,6 +174,7 @@ export class YAxisDescriptor extends AxisDescriptor {
 
         this.slices = [
             this.displayMode,
+            this.drawOrder,
             this.font,
             this.displayUnits,
             this.precision,
@@ -178,13 +218,31 @@ export class YAxisDescriptor extends AxisDescriptor {
         return this.getDisplayMode() === YAxisDisplayMode.stacked100;
     }
 
+    /**
+     * The rank the series of this axis are drawn at: the lower the rank, the earlier they
+     * are drawn and the further behind the other series they end up.
+     */
+    public getDrawOrderRank(): number {
+        switch (this.drawOrder.value?.value) {
+            case YAxisDrawOrder.back: {
+                return 0;
+            }
+            case YAxisDrawOrder.front: {
+                return 2;
+            }
+            default: {
+                return 1;
+            }
+        }
+    }
+
     public isLabelWidthFixed(): boolean {
         return this.fixedLabelWidthMode.value.value === FixedLabelWidthMode.fixed;
     }
 
     public setLocalizedDisplayName(localizationManager: ILocalizationManager) {
         super.setLocalizedDisplayName(localizationManager);
-        [...fixedLabelWidthModeOptions, ...displayModeOptions].forEach(option => {
+        [...fixedLabelWidthModeOptions, ...displayModeOptions, ...drawOrderOptions].forEach(option => {
             option.displayName = localizationManager.getDisplayName(option.displayNameKey)
         });
     }

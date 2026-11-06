@@ -1170,6 +1170,21 @@
             ]
           }
         },
+        "drawOrder": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "back"
+              },
+              {
+                "value": "auto"
+              },
+              {
+                "value": "front"
+              }
+            ]
+          }
+        },
         "show": {
           "type": {
             "bool": true
@@ -1269,6 +1284,21 @@
             ]
           }
         },
+        "drawOrder": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "back"
+              },
+              {
+                "value": "auto"
+              },
+              {
+                "value": "front"
+              }
+            ]
+          }
+        },
         "show": {
           "type": {
             "bool": true
@@ -1364,6 +1394,21 @@
               },
               {
                 "value": "stacked100"
+              }
+            ]
+          }
+        },
+        "drawOrder": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "back"
+              },
+              {
+                "value": "auto"
+              },
+              {
+                "value": "front"
               }
             ]
           }
