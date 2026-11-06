@@ -1,3 +1,7 @@
+## 3.2.1.0
+### Fixes
+* Gave this build its own visual identity - GUID, name ("Power KPI Plus") and an icon with a "+" badge. It shared the GUID of the Power KPI published on AppSource, so Power BI loaded the AppSource version in its place and none of the features of this build showed up
+
 ## 3.2.0.0
 ### Features
 * Added a Tertiary Values field drawn against a third Y axis, placed on the right of the secondary one. It comes with its own Tertiary Y Axis and Tertiary Y Axis Reference Lines cards, offering the same settings as the secondary ones, and both cards only show up once the field is bound
